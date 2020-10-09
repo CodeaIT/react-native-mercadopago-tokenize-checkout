@@ -122,6 +122,19 @@ const MercadoPagoWebTokenizeCheckout: React.FC<MercadoPagoWebTokenizeCheckoutPro
               );
             }
 
+            if (
+              navState.url !== 'about:blank' &&
+              navState.url.endsWith('&action=')
+            ) {
+              const newURL = navState.url.replace(
+                'action=',
+                `action=${props.action}`
+              );
+              innerRef.current.injectJavaScript(
+                `window.location = "${newURL}";`
+              );
+            }
+
             try {
               if (typeof props.onPaymentResult === 'function') {
                 if (navState.url.includes(props.successUrl)) {
