@@ -1,3 +1,4 @@
+import { URL } from 'react-native-url-polyfill';
 import React, { useMemo, useRef } from 'react';
 import { WebView } from 'react-native-webview';
 import { StyleSheet } from 'react-native';
@@ -114,25 +115,42 @@ const MercadoPagoWebTokenizeCheckout: React.FC<MercadoPagoWebTokenizeCheckoutPro
           keyboardDisplayRequiresUserAction
           style={[styles.container, props.style]}
           onNavigationStateChange={(navState) => {
-            if (navState.url.includes('action=null%2F')) {
-              const newURL = navState.url.replace('action=null%2F', 'action=');
+            // if (navState.url.includes('action=null%2F')) {
+            //   const newURL = navState.url.replace('action=null%2F', 'action=');
 
-              innerRef.current.injectJavaScript(
-                `window.location = "${newURL}";`
-              );
-            }
+            //   innerRef.current.injectJavaScript(
+            //     `window.location = "${newURL}";`
+            //   );
+            // }
 
-            if (
-              navState.url !== 'about:blank' &&
-              navState.url.endsWith('&action=')
-            ) {
-              const newURL = navState.url.replace(
-                'action=',
-                `action=${props.action}`
-              );
-              innerRef.current.injectJavaScript(
-                `window.location = "${newURL}";`
-              );
+            // if (
+            //   navState.url !== 'about:blank' &&
+            //   navState.url.endsWith('&action=')
+            // ) {
+            //   const newURL = navState.url.replace(
+            //     'action=',
+            //     `action=${props.action}`
+            //   );
+            //   innerRef.current.injectJavaScript(
+            //     `window.location = "${newURL}";`
+            //   );
+            // }
+
+            if (navState.url.includes('action=')) {
+              const url = new URL(navState.url);
+
+              const action = url.searchParams.get('action');
+
+              if (!action) {
+                url.searchParams.delete('action');
+                url.searchParams.append('action', props.action);
+
+                const newURL = `${url.protocol}//${url.hostname}${url.pathname}?${url.searchParams}`;
+
+                innerRef.current.injectJavaScript(
+                  `window.location = "${newURL}";`
+                );
+              }
             }
 
             try {
